@@ -1,7 +1,6 @@
 package ru.netology.controller;
 
 import com.google.gson.Gson;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import ru.netology.exception.NotFoundException;
 import ru.netology.model.Post;
@@ -26,16 +25,8 @@ public class PostController {
 
 
     @GetMapping
-    public void all(HttpServletResponse response) throws IOException {
-        response.setContentType(APPLICATION_JSON);
-        final var gson = new Gson();
-        List<Post> data = null;
-        try {
-            data = service.all();
-        } catch (NotFoundException ex) {
-            response.setStatus(SC_NOT_FOUND);
-        }
-        response.getWriter().print("All posts:\n" + gson.toJson(data));
+    public List<Post> all() {
+        return service.all();
     }
 
     @GetMapping("/{id}")
