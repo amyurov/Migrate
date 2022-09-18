@@ -17,7 +17,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<Post> all() {
         if (repository.all().isEmpty()) {
-            throw new NotFoundException("No posts have been created yet");
+            throw new NotFoundException();
         }
         return repository.all();
     }

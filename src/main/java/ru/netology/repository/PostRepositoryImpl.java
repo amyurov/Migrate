@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors;
+
 @Repository
 public class PostRepositoryImpl implements PostRepository {
 
@@ -24,14 +26,16 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public List<Post> all() {
         if (!storage.isEmpty()) {
-            return new ArrayList<>(storage.values());
+            return new ArrayList<>(storage.values()).stream()
+                    .filter(p -> !p.isRemoved())
+                    .collect(Collectors.toList());
         }
         return Collections.emptyList();
     }
 
     @Override
     public Optional<Post> getById(long id) throws NotFoundException {
-        if (storage.containsKey(id)) {
+        if (storage.containsKey(id) && !storage.get(id).isRemoved()) {
             return Optional.of(storage.get(id));
         } else throw new NotFoundException("No post with id " + id);
     }
@@ -74,7 +78,7 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public Post update(Post post) throws NotFoundException {
-        if (storage.containsKey(post.getId())) {
+        if (storage.containsKey(post.getId()) && !storage.get(post.getId()).isRemoved()) {
             storage.get(post.getId()).setContent(post.getContent());
         return post;
         } else {
@@ -84,8 +88,8 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public void removeById(long id) throws NotFoundException {
-        if (storage.containsKey(id)) {
-            storage.remove(id);
+        if (storage.containsKey(id) && !storage.get(id).isRemoved()) {
+            storage.get(id).markAsRemoved();
         } else {
             throw new NotFoundException("No post with id " + id);
         }
